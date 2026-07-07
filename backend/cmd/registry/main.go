@@ -1,11 +1,13 @@
 // Command registry is the HTTP backend for the wago plugins registry
 // (pkg.wago.sh). It uses GitHub as the sole identity provider, issues its own
 // signed-cookie sessions, and stores the full registry — packages, users, stars,
-// reviews, votes, comments and install history — in a single JSON-file store
-// seeded from data/packages.json on first run.
+// reviews, votes, comments and install history. The default store engine is an
+// embedded Pebble (RocksDB-lineage LSM) database seeded from data/packages.json
+// on first run; set STORE_ENGINE=json for the legacy single-file store.
 //
-// It depends only on the Go standard library so it can, in principle, be built
-// with TinyGo to run on the wago WASM runtime.
+// The API layer keeps the dataset in memory and serves the hot anonymous browse
+// paths (package list + detail) from a short-TTL response cache, so read
+// throughput is decoupled from the per-request work and the write rate.
 package main
 
 import (
@@ -26,15 +28,31 @@ func main() {
 		log.Fatalf("config: %v", err)
 	}
 
-	// Ensure the store's directory exists, then open (creating it if missing).
-	if dir := filepath.Dir(cfg.StoreFile); dir != "" && dir != "." {
-		if err := os.MkdirAll(dir, 0o755); err != nil {
+	// Open the configured store engine. Pebble (embedded LSM) is the default;
+	// "json" selects the legacy single-file store.
+	var st store.Store
+	switch cfg.StoreEngine {
+	case "json":
+		if dir := filepath.Dir(cfg.StoreFile); dir != "" && dir != "." {
+			if err := os.MkdirAll(dir, 0o755); err != nil {
+				log.Fatalf("store dir: %v", err)
+			}
+		}
+		js, err := store.Open(cfg.StoreFile)
+		if err != nil {
+			log.Fatalf("open store: %v", err)
+		}
+		st = js
+	default: // "pebble"
+		if err := os.MkdirAll(cfg.StoreDir, 0o755); err != nil {
 			log.Fatalf("store dir: %v", err)
 		}
-	}
-	st, err := store.Open(cfg.StoreFile)
-	if err != nil {
-		log.Fatalf("open store: %v", err)
+		ps, err := store.OpenPebble(cfg.StoreDir)
+		if err != nil {
+			log.Fatalf("open store: %v", err)
+		}
+		defer ps.Close()
+		st = ps
 	}
 
 	// Seed from the packages file when the store is empty.

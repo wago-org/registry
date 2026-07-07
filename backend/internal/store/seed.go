@@ -50,7 +50,7 @@ func seedUserID(login string) string { return "seed:" + login }
 
 // Seed imports the wago-registry/v1 file at path into an empty store. It is a
 // no-op when the store already has packages.
-func Seed(s *JSONStore, path string) error {
+func Seed(s Store, path string) error {
 	if s.PackageCount() > 0 {
 		return nil
 	}
@@ -63,15 +63,13 @@ func Seed(s *JSONStore, path string) error {
 		return fmt.Errorf("parse seed file: %w", err)
 	}
 
-	s.mu.Lock()
-	defer s.mu.Unlock()
-
+	d := emptyDoc()
 	now := time.Now().UTC()
 
 	// Seed users get stable ids and empty avatars.
 	for _, u := range sf.SeedUsers {
 		id := seedUserID(u.Login)
-		s.doc.Users[id] = model.User{ID: id, Login: u.Login, Name: u.Name}
+		d.Users[id] = model.User{ID: id, Login: u.Login, Name: u.Name}
 	}
 
 	for _, sp := range sf.Packages {
@@ -83,13 +81,13 @@ func Seed(s *JSONStore, path string) error {
 		if p.CreatedAt == "" && len(p.Versions) > 0 {
 			p.CreatedAt = p.Versions[len(p.Versions)-1].PublishedAt
 		}
-		s.doc.Packages[p.Short] = p
+		d.Packages[p.Short] = p
 
 		// Reviews: each seed review becomes a Review by its seed user, with
 		// `score` synthetic upvotes so the vote tally reproduces the seed score.
 		for ri, sr := range sp.SeedReviews {
 			rid := newID()
-			s.doc.Reviews[rid] = model.Review{
+			d.Reviews[rid] = model.Review{
 				ID:           rid,
 				PackageShort: p.Short,
 				UserID:       seedUserID(sr.Login),
@@ -102,7 +100,7 @@ func Seed(s *JSONStore, path string) error {
 				for n := 0; n < sr.Score; n++ {
 					votes[fmt.Sprintf("seedvote:%s:%d:%d", p.Short, ri, n)] = "up"
 				}
-				s.doc.Votes[rid] = votes
+				d.Votes[rid] = votes
 			}
 		}
 
@@ -115,7 +113,7 @@ func Seed(s *JSONStore, path string) error {
 			if sc.ParentIndex != nil && *sc.ParentIndex >= 0 && *sc.ParentIndex < ci {
 				parent = ids[*sc.ParentIndex]
 			}
-			s.doc.Comments[cid] = model.Comment{
+			d.Comments[cid] = model.Comment{
 				ID:           cid,
 				PackageShort: p.Short,
 				UserID:       seedUserID(sc.Login),
@@ -131,18 +129,28 @@ func Seed(s *JSONStore, path string) error {
 		base := p.InstallBaseWeek / 7
 		if base > 0 {
 			buckets := make(map[string]int, 90)
-			for d := 0; d < 90; d++ {
-				date := now.AddDate(0, 0, -d).Format("2006-01-02")
-				ripple := (d%7 - 3) * (base / 20)
+			for off := 0; off < 90; off++ {
+				date := now.AddDate(0, 0, -off).Format("2006-01-02")
+				ripple := (off%7 - 3) * (base / 20)
 				count := base + ripple
 				if count < 0 {
 					count = 0
 				}
 				buckets[date] = count
 			}
-			s.doc.Installs[p.Short] = buckets
+			d.Installs[p.Short] = buckets
 		}
 	}
 
-	return s.persistLocked()
+	loader, ok := s.(bulkLoader)
+	if !ok {
+		return fmt.Errorf("store %T does not support seeding", s)
+	}
+	return loader.bulkLoad(d)
+}
+
+// bulkLoader is implemented by concrete stores to atomically import a seed
+// document. It stays unexported so only in-package store types satisfy it.
+type bulkLoader interface {
+	bulkLoad(d doc) error
 }

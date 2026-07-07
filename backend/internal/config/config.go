@@ -19,7 +19,9 @@ type Config struct {
 	FrontendURL        string
 	SessionSecret      []byte
 	PackagesFile       string
-	StoreFile          string
+	StoreEngine        string // "pebble" (default, embedded LSM) or "json" (legacy file)
+	StoreFile          string // json engine: path to the single JSON document
+	StoreDir           string // pebble engine: path to the database directory
 	DevMode            bool
 	CookieDomain       string
 }
@@ -42,7 +44,9 @@ func Load() (Config, error) {
 		OAuthRedirectURL:   os.Getenv("OAUTH_REDIRECT_URL"),
 		FrontendURL:        getenv("FRONTEND_URL", "http://localhost:8000"),
 		PackagesFile:       getenv("PACKAGES_FILE", "./data/packages.json"),
+		StoreEngine:        getenv("STORE_ENGINE", "pebble"),
 		StoreFile:          getenv("STORE_FILE", "./data/store.json"),
+		StoreDir:           getenv("STORE_DIR", "./data/registry-db"),
 		DevMode:            os.Getenv("DEV_MODE") == "true",
 		CookieDomain:       os.Getenv("COOKIE_DOMAIN"),
 	}

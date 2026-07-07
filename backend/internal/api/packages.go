@@ -13,6 +13,15 @@ import (
 // fields on each entry.
 func (a *App) handleListPackages(w http.ResponseWriter, r *http.Request) {
 	q := r.URL.Query()
+	// Fast path: the default browse request (no filters, anonymous) is identical
+	// for everyone, so serve a cached, pre-marshaled snapshot.
+	if isDefaultListQuery(q) && a.viewerID(r) == "" {
+		if b := a.cachedDefaultList(); b != nil {
+			w.Header().Set("Content-Type", "application/json")
+			_, _ = w.Write(b)
+			return
+		}
+	}
 	pkgs := a.filterPackages(
 		a.Store.ListPackages(),
 		q.Get("q"), q.Get("category"), q.Get("tag"),
@@ -30,7 +39,16 @@ func (a *App) handleListPackages(w http.ResponseWriter, r *http.Request) {
 
 // handleGetPackage returns a single package (matched by short or module name).
 func (a *App) handleGetPackage(w http.ResponseWriter, r *http.Request) {
-	p, ok := a.Store.GetPackage(r.PathValue("name"))
+	name := r.PathValue("name")
+	// Fast path: anonymous detail by short is cached.
+	if a.viewerID(r) == "" {
+		if b := a.cachedDetail(name); b != nil {
+			w.Header().Set("Content-Type", "application/json")
+			_, _ = w.Write(b)
+			return
+		}
+	}
+	p, ok := a.Store.GetPackage(name)
 	if !ok {
 		httpx.WriteError(w, http.StatusNotFound, "package not found")
 		return

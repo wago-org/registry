@@ -113,6 +113,46 @@ func (s *JSONStore) persistLocked() error {
 	return os.Rename(tmp, s.path)
 }
 
+// bulkLoad merges a seed document into the store and persists once. Seed guards
+// that this only runs on an empty store.
+func (s *JSONStore) bulkLoad(d doc) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	for k, v := range d.Users {
+		s.doc.Users[k] = v
+	}
+	for k, v := range d.Packages {
+		s.doc.Packages[k] = v
+	}
+	for k, v := range d.Reviews {
+		s.doc.Reviews[k] = v
+	}
+	for k, v := range d.Comments {
+		s.doc.Comments[k] = v
+	}
+	for k, v := range d.Tokens {
+		s.doc.Tokens[k] = v
+	}
+	for k, v := range d.Stars {
+		s.doc.Stars[k] = append([]string(nil), v...)
+	}
+	for k, v := range d.Votes {
+		m := make(map[string]string, len(v))
+		for a, b := range v {
+			m[a] = b
+		}
+		s.doc.Votes[k] = m
+	}
+	for k, v := range d.Installs {
+		m := make(map[string]int, len(v))
+		for a, b := range v {
+			m[a] = b
+		}
+		s.doc.Installs[k] = m
+	}
+	return s.persistLocked()
+}
+
 // newID returns a random 16-byte hex id.
 func newID() string {
 	b := make([]byte, 16)

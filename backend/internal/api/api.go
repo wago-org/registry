@@ -8,7 +8,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"net/url"
 	"strconv"
+	"sync"
+	"time"
 
 	"github.com/wago-org/registry-backend/internal/auth"
 	"github.com/wago-org/registry-backend/internal/config"
@@ -23,6 +26,7 @@ type App struct {
 	Store    store.Store
 	Sessions *auth.Sessions
 	GitHub   *auth.GitHub
+	list     *listCache
 }
 
 // New builds an App and its auth dependencies from config and a store.
@@ -32,7 +36,83 @@ func New(cfg config.Config, st store.Store) *App {
 		Store:    st,
 		Sessions: auth.NewSessions(cfg, st),
 		GitHub:   auth.NewGitHub(cfg),
+		list:     &listCache{},
 	}
+}
+
+// listCache holds pre-marshaled anonymous responses — the default package list
+// and every package's detail — the two dominant browse requests. Both are rebuilt
+// together at most once per listTTL, so read throughput is decoupled from the
+// per-request decorate cost and the install write rate (counts are at most listTTL
+// stale). Filtered or authenticated requests bypass the cache.
+type listCache struct {
+	mu      sync.RWMutex
+	list    []byte
+	details map[string][]byte // package short -> decorated detail JSON
+	builtAt time.Time
+}
+
+const listTTL = time.Second
+
+// isDefaultListQuery reports whether a list request carries no filters/sort, so
+// its response is identical for every anonymous viewer and can be cached.
+func isDefaultListQuery(q url.Values) bool {
+	for _, k := range []string{"q", "category", "tag", "stability", "engine", "verified", "sort"} {
+		if q.Get(k) != "" {
+			return false
+		}
+	}
+	return true
+}
+
+// refreshCache rebuilds the anonymous list + detail snapshots when stale. Only
+// one goroutine rebuilds; others serve the current bytes.
+func (a *App) refreshCache() {
+	a.list.mu.RLock()
+	fresh := a.list.list != nil && time.Since(a.list.builtAt) < listTTL
+	a.list.mu.RUnlock()
+	if fresh {
+		return
+	}
+	a.list.mu.Lock()
+	defer a.list.mu.Unlock()
+	if a.list.list != nil && time.Since(a.list.builtAt) < listTTL {
+		return
+	}
+	all := a.Store.ListPackages()
+	pkgs := a.filterPackages(all, "", "", "", "", "", false)
+	a.sortPackages(pkgs, "")
+	out := make([]map[string]any, 0, len(pkgs))
+	details := make(map[string][]byte, len(all))
+	for _, p := range pkgs {
+		dec := a.decoratePackage(p, "")
+		out = append(out, dec)
+		if b, err := json.Marshal(dec); err == nil {
+			details[p.Short] = b
+		}
+	}
+	if b, err := json.Marshal(map[string]any{"packages": out, "total": len(out)}); err == nil {
+		a.list.list = b
+		a.list.details = details
+		a.list.builtAt = time.Now()
+	}
+}
+
+// cachedDefaultList returns the pre-marshaled default list (nil if unbuilt).
+func (a *App) cachedDefaultList() []byte {
+	a.refreshCache()
+	a.list.mu.RLock()
+	defer a.list.mu.RUnlock()
+	return a.list.list
+}
+
+// cachedDetail returns the pre-marshaled anonymous detail for short (nil if
+// absent — caller falls back to the compute path).
+func (a *App) cachedDetail(short string) []byte {
+	a.refreshCache()
+	a.list.mu.RLock()
+	defer a.list.mu.RUnlock()
+	return a.list.details[short]
 }
 
 // NewRouter registers every endpoint and wraps the mux with CORS.
