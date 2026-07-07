@@ -67,6 +67,10 @@ func (g *GitHub) AuthorizeURL(state string) string {
 	q.Set("redirect_uri", g.redirectURL)
 	q.Set("scope", "read:user user:email")
 	q.Set("state", state)
+	// Always show GitHub's account picker so users with multiple GitHub accounts
+	// consciously choose one instead of being silently signed in with whichever
+	// account is currently active in the browser.
+	q.Set("prompt", "select_account")
 	return "https://github.com/login/oauth/authorize?" + q.Encode()
 }
 

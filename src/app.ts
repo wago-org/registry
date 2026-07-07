@@ -180,6 +180,7 @@ async function openPackage(short: string, push = true): Promise<void> {
     state.starCount = detail.stars;
     render();
     enrichAvatars(); // author/contributor profile pics
+    enrichGithubStars(); // real GitHub stargazer count
     // install history for the sidebar sparkline, and comments for the tab count.
     void api.loadInstalls(detail).then((r) => {
         if (state.pkg === detail) {
@@ -259,6 +260,28 @@ function enrichAvatars(): void {
     });
 }
 
+// Show the package's real GitHub stargazer count (stars = GitHub stars). Uses
+// the cached value immediately if present, then refreshes from the API. Failures
+// (rate-limit / offline) leave the seed count in place.
+function enrichGithubStars(): void {
+    const p = state.pkg;
+    if (!p) return;
+    const repo = github.parseRepo(p.repository);
+    if (!repo) return;
+    const cached = github.starsFor(repo.owner, repo.repo);
+    if (cached != null) {
+        state.starCount = cached;
+        p.stars = cached;
+    }
+    void github.fetchRepo(repo.owner, repo.repo).then((r) => {
+        if (state.pkg !== p || !r) return;
+        state.starCount = r.stars;
+        p.stars = r.stars;
+        if (typeof r.forks === "number") p.forks = r.forks;
+        if (state.screen === "package") render();
+    });
+}
+
 // Sync the Issues tab from the live GitHub API for this package's repo.
 async function syncIssues(): Promise<void> {
     const pkg = state.pkg;
@@ -318,25 +341,36 @@ async function doSignOut(): Promise<void> {
     navHome();
 }
 
+// Stars mirror the package's real GitHub stars. Starring here records the
+// package in the user's "Your stars" list AND sends them to the repo on GitHub
+// to star it there (the count shown is GitHub's authoritative stargazer count,
+// so we don't fake an optimistic +1). Unstarring just removes it from the list.
 async function toggleStar(): Promise<void> {
     if (!state.user) {
         navAuth();
         return;
     }
-    if (!state.pkg) return;
+    const p = state.pkg;
+    if (!p) return;
     const on = !state.starred;
-    // optimistic
     state.starred = on;
-    state.starCount += on ? 1 : -1;
     render();
     try {
-        const res = await api.setStar(state.pkg, on);
-        state.starred = res.starred;
-        state.starCount = res.stars;
+        await api.setStar(p, on);
     } catch {
-        // revert on failure
-        state.starred = !on;
-        state.starCount += on ? -1 : 1;
+        state.starred = !on; // revert on failure
+        render();
+        return;
+    }
+    // "Your stars" needs a reload next time the account page is shown.
+    state.starShorts = null;
+    // Send the user to GitHub to star the actual repo.
+    if (on && p.repository) {
+        try {
+            window.open(p.repository, "_blank", "noopener");
+        } catch {
+            /* non-browser */
+        }
     }
     render();
 }
