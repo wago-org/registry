@@ -6,10 +6,8 @@ name: Deploy Registry
 on:
   push:
     branches:
-      - main
+      - master
   workflow_dispatch:
-  # Reusable: the "Sync stats" workflow calls this after committing fresh stats.
-  workflow_call:
 
 permissions:
   contents: read
