@@ -230,7 +230,11 @@ function paintPicker(active: number): void {
 // ── actions ──────────────────────────────────────────────────────────────────
 
 async function doSignIn(): Promise<void> {
-    if (backendMode() === "remote") {
+    // Always use real GitHub OAuth. The only exception is localhost with no
+    // backend running, where a faked demo session keeps the UI explorable.
+    const host = location.hostname;
+    const isLocalhost = host === "localhost" || host === "127.0.0.1";
+    if (backendMode() === "remote" || !isLocalhost) {
         window.location.href = api.signInUrl(location.href);
         return;
     }
