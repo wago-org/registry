@@ -95,8 +95,9 @@ func (a *App) handlePublish(w http.ResponseWriter, r *http.Request) {
 	}
 
 	p.Name = req.Manifest.Module
-	p.Subpackages = req.Manifest.Subpackages
-	aggregateFromSubpackages(&p, req.Manifest.Subpackages)
+	subs := req.Manifest.ResolvedSubpackages()
+	p.Subpackages = subs
+	aggregateFromSubpackages(&p, subs)
 
 	if req.Category != "" {
 		p.Category = req.Category
