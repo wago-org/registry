@@ -281,6 +281,12 @@ button {
 }
 .readme .md pre code {
     font-size: inherit;
+    /* Must override the inline-code pill above (equal-or-higher specificity),
+       else the inline background paints behind every line inside the block. */
+    background: none;
+    padding: 0;
+    border: none;
+    border-radius: 0;
 }
 .readme .md blockquote {
     padding: 0 1em;
