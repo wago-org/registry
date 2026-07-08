@@ -4,6 +4,12 @@
 // for the JSON shapes the store persists and the API serves.
 package model
 
+import (
+	"encoding/json"
+	"errors"
+	"strings"
+)
+
 // Stability marks how settled an extension's or package's public surface is. It
 // mirrors wago's own wago.Stability (experimental|stable|deprecated).
 type Stability string
@@ -41,10 +47,86 @@ type Subpackage struct {
 
 // Manifest is a wago-plugin/v1 document: a Go module that ships one or more
 // subpackages. It is what a publisher POSTs to /api/publish.
+// Manifest is the wago.json a package publishes (schema "wago-plugin/v1"). It is
+// self-similar: the top-level module and every subpackage share the same config
+// shape (ManifestPkg). Provenance and engines set at the module level are
+// inherited by subpackages that omit them.
 type Manifest struct {
-	Schema      string       `json:"schema"`
-	Module      string       `json:"module"`
-	Subpackages []Subpackage `json:"subpackages"`
+	ManifestPkg
+	Schema string `json:"schema"`
+}
+
+// ManifestPkg is one node of a self-similar wago.json — the module itself or a
+// subpackage. Identity is the module path; there is no separate id.
+type ManifestPkg struct {
+	Module      string            `json:"module"`
+	Name        string            `json:"name,omitempty"`
+	Version     string            `json:"version,omitempty"`
+	Description string            `json:"description,omitempty"`
+	Stability   Stability         `json:"stability,omitempty"`
+	License     string            `json:"license,omitempty"`
+	Homepage    string            `json:"homepage,omitempty"`
+	Repository  string            `json:"repository,omitempty"`
+	Authors     []string          `json:"authors,omitempty"`
+	Keywords    []string          `json:"keywords,omitempty"`
+	Engines     map[string]string `json:"engines,omitempty"`
+	Platforms   []string          `json:"platforms,omitempty"`
+	Subpackages []ManifestSub     `json:"subpackages,omitempty"`
+}
+
+// ManifestSub is a subpackages[] element. It may be written inline as an object or
+// as a "./path/wago.json" string — but the string form must be inlined by the
+// publisher before upload (only they have the files), so the string form is
+// rejected here with a clear message.
+type ManifestSub struct {
+	ManifestPkg
+}
+
+func (s *ManifestSub) UnmarshalJSON(b []byte) error {
+	if len(b) > 0 && b[0] == '"' {
+		return errors.New("subpackage path references must be inlined before publishing")
+	}
+	type alias ManifestSub
+	return json.Unmarshal(b, (*alias)(s))
+}
+
+// ResolvedSubpackages flattens the manifest's subpackages into stored records,
+// applying module-level inheritance (provenance + engines/platforms) and deriving
+// each stored id/import from the module path. This is the bridge from the
+// self-similar publish format to the flat records the store and API serve.
+func (m Manifest) ResolvedSubpackages() []Subpackage {
+	out := make([]Subpackage, 0, len(m.Subpackages))
+	for _, sub := range m.Subpackages {
+		s := sub.ManifestPkg
+		engines := s.Engines
+		if len(engines) == 0 {
+			engines = m.Engines
+		}
+		platforms := s.Platforms
+		if len(platforms) == 0 {
+			platforms = m.Platforms
+		}
+		out = append(out, Subpackage{
+			Import:      s.Module,
+			ID:          lastSegment(s.Module),
+			Name:        s.Name,
+			Version:     s.Version,
+			Description: s.Description,
+			Stability:   s.Stability,
+			Tags:        s.Keywords,
+			Compat:      Compatibility{Engines: engines, Platforms: platforms},
+		})
+	}
+	return out
+}
+
+// lastSegment returns the final path element of a module path (a short, URL-safe
+// id): "github.com/wago-org/wasi/p1" → "p1".
+func lastSegment(module string) string {
+	if i := strings.LastIndex(module, "/"); i >= 0 {
+		return module[i+1:]
+	}
+	return module
 }
 
 // Author is a named author with an optional GitHub login.
