@@ -659,11 +659,8 @@ function subpackageDetail(s: AppState): string {
 // GitHub client-side and rendered as markdown.
 function readmeTab(s: AppState): string {
     const p = s.pkg!;
-    // The README captured at publish (works for private repos) takes precedence
-    // over the one fetched live from GitHub (public repos).
-    const md = p.readme || s.readme;
-    if (md) {
-        return `<div class="readme">${mdBlock(md)}</div>`;
+    if (s.readme) {
+        return `<div class="readme">${mdBlock(s.readme)}</div>`;
     }
     if (s.readmeLoading) {
         return `<div style="padding:22px;color:${C.muted};font-size:14px">Loading README from GitHub…</div>`;
