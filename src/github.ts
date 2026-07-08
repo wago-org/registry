@@ -88,15 +88,18 @@ interface GhReadmeRaw {
 }
 
 // fetchReadme returns the repo's README as markdown (decoded from the GitHub
-// API's base64), cached. Null when the repo has no README, or on a fetch failure
-// (rate-limit / offline) — the caller shows a fallback.
-export async function fetchReadme(owner: string, repo: string): Promise<string | null> {
-    const key = `readme.${owner}/${repo}`.toLowerCase();
+// API's base64), cached. When ref is given (the release commit), it fetches that
+// exact commit — a permalink, so the page shows the README as of the published
+// version. Null when there's no README, or on a fetch failure (rate-limit /
+// offline / private repo the browser can't reach).
+export async function fetchReadme(owner: string, repo: string, ref?: string): Promise<string | null> {
+    const key = `readme.${owner}/${repo}@${ref || "HEAD"}`.toLowerCase();
     const cached = cacheGet<string>(key);
     if (cached != null) return cached;
     if (inFlight.has(key)) return inFlight.get(key) as Promise<string | null>;
     const p = (async (): Promise<string | null> => {
-        const raw = await ghFetch<GhReadmeRaw>(`/repos/${owner}/${repo}/readme`);
+        const path = `/repos/${owner}/${repo}/readme` + (ref ? `?ref=${encodeURIComponent(ref)}` : "");
+        const raw = await ghFetch<GhReadmeRaw>(path);
         if (!raw || !raw.content) return null;
         const text = decodeBase64(raw.content.replace(/\s/g, ""));
         cacheSet(key, text);

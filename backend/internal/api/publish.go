@@ -41,7 +41,6 @@ type publishRequest struct {
 	UnpackedKB int            `json:"unpackedKB"`
 	Category   string         `json:"category"`
 	Tags       []string       `json:"tags"`
-	Readme     string         `json:"readme"`
 }
 
 // shortFromModule derives a package short id from a module path: the last path
@@ -96,9 +95,6 @@ func (a *App) handlePublish(w http.ResponseWriter, r *http.Request) {
 	}
 
 	p.Name = req.Manifest.Module
-	if req.Readme != "" {
-		p.Readme = req.Readme // the repo's README, captured at publish (works for private repos)
-	}
 	subs := req.Manifest.ResolvedSubpackages()
 	p.Subpackages = subs
 	aggregateFromSubpackages(&p, subs)

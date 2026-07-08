@@ -413,17 +413,15 @@ function enrichReadme(): void {
         state.readmeLoading = false;
         if (state.screen === "package") render();
     };
-    // A README stored at publish (e.g. a private repo) wins — no GitHub fetch.
-    if (p.readme) {
-        settle();
-        return;
-    }
     const repo = github.parseRepo(p.repository);
     if (!repo) {
         settle();
         return;
     }
-    void github.fetchReadme(repo.owner, repo.repo).then((md) => {
+    // Pin to the published release's commit — a permalink, so the README matches
+    // the version on the page rather than whatever HEAD happens to be.
+    const commit = (p.versions.find((v) => v.latest) || p.versions[0])?.commit;
+    void github.fetchReadme(repo.owner, repo.repo, commit).then((md) => {
         if (state.pkg !== p) return;
         state.readme = md;
         settle();
