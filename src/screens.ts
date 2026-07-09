@@ -14,7 +14,7 @@ import type {
     UserEmail,
     VersionRow,
 } from "./types.js";
-import { compactNum, esc, escAttr, fullDate, pkgPath, relativeDate, shortHash, sparkline, starStr, tier } from "./util.js";
+import { compactNum, esc, escAttr, fullDate, pkgPath, relativeDate, shortHash, sparkline, starStr, tier, weeklyBuckets } from "./util.js";
 import { mdBlock } from "./markdown.js";
 import { avatarFor } from "./github.js";
 
@@ -1060,18 +1060,18 @@ function versionRow(p: Package, v: VersionRow, first: boolean): string {
 
 function pkgSidebar(s: AppState): string {
     const p = s.pkg!;
-    // The monthly trend: the last 30 days of the daily series.
-    const recent = s.installSeries.slice(-30);
-    const counts = recent.map((pt) => pt.count);
+    // The install trend: ~a year of history bucketed into weekly totals.
+    const weeks = weeklyBuckets(s.installSeries);
+    const counts = weeks.map((b) => b.count);
     const hasInstalls = counts.some((c) => c > 0);
     const max = Math.max(1, ...counts);
     const spark = hasInstalls ? sparkline(counts.map((c) => (c / max) * 100)) : null;
-    // Per-point hover data (viewBox coords + the raw count/date) for the tooltip.
-    const sparkPts = recent.map((pt, i) => ({
-        x: recent.length > 1 ? +((i / (recent.length - 1)) * 100).toFixed(2) : 100,
-        y: +(38 - (pt.count / max) * 34).toFixed(2),
-        c: pt.count,
-        d: pt.date,
+    // Per-point hover data (viewBox coords + the week's total/start-date) for the tooltip.
+    const sparkPts = weeks.map((b, i) => ({
+        x: weeks.length > 1 ? +((i / (weeks.length - 1)) * 100).toFixed(2) : 100,
+        y: +(38 - (b.count / max) * 34).toFixed(2),
+        c: b.count,
+        d: b.date,
     }));
     const installCmd = `wago pkg add ${p.name}`;
 

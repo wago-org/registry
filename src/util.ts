@@ -147,6 +147,19 @@ export function memberFor(iso: string): string {
     return "today";
 }
 
+// weeklyBuckets aggregates a dense daily series (oldest→newest, one point per day)
+// into weekly totals — grouping 7 days at a time from the most recent, so the
+// latest bucket is a full week and only the oldest may be partial. Each bucket is
+// labelled by its start date.
+export function weeklyBuckets(series: { date: string; count: number }[]): { date: string; count: number }[] {
+    const out: { date: string; count: number }[] = [];
+    for (let end = series.length; end > 0; end -= 7) {
+        const chunk = series.slice(Math.max(0, end - 7), end);
+        out.unshift({ date: chunk[0].date, count: chunk.reduce((a, b) => a + b.count, 0) });
+    }
+    return out;
+}
+
 // Build an SVG sparkline (points + filled area) from a weekly series, matching
 // the package sidebar chart in the design.
 export function sparkline(series: number[]): {
