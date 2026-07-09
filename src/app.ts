@@ -60,10 +60,10 @@ interface SparkPt {
     d: string;
 }
 
-// enhanceSparkline adds an npm-style hover readout to the monthly-installs chart:
-// a guide line + dot follow the cursor to the nearest day, and a tooltip shows
-// that day's install count and date. Per-point data is embedded in the chart's
-// data-spark attribute (viewBox coords + raw count/date).
+// enhanceSparkline adds an npm-style hover readout to the installs chart: a guide
+// line + dot follow the cursor to the nearest weekly point, and a tooltip shows
+// that week's install total and start date. Per-point data is embedded in the
+// chart's data-spark attribute (viewBox coords + the week's total/start-date).
 function enhanceSparkline(): void {
     const wrap = root().querySelector<HTMLElement>(".spark-wrap");
     if (!wrap || wrap.dataset.enh === "1") return;
@@ -97,7 +97,7 @@ function enhanceSparkline(): void {
         dot.style.left = `${px}px`;
         dot.style.top = `${py}px`;
         dot.style.display = "block";
-        tip.textContent = `${best.c.toLocaleString()} install${best.c === 1 ? "" : "s"} · ${fmtShortDate(best.d)}`;
+        tip.textContent = `${best.c.toLocaleString()} install${best.c === 1 ? "" : "s"} · week of ${fmtShortDate(best.d)}`;
         tip.style.display = "block";
         const half = tip.offsetWidth / 2;
         tip.style.left = `${Math.max(half, Math.min(px, r.width - half))}px`;

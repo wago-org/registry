@@ -406,7 +406,7 @@ export interface InstallsResult {
     weekLabel: string;
 }
 
-export async function loadInstalls(pkg: Package, days = 90): Promise<InstallsResult> {
+export async function loadInstalls(pkg: Package, days = 365): Promise<InstallsResult> {
     try {
         return await apiGet<InstallsResult>(`/api/packages/${pkg.short}/installs?days=${days}`);
     } catch {
