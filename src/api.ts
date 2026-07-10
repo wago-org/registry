@@ -96,9 +96,10 @@ export function normalizePackage(raw: RawPackage): Package {
     const latest = versions.find((v) => v.latest) || versions[0];
     const installsWeek =
         raw.installsWeek ?? (raw as { installBaseWeek?: number }).installBaseWeek ?? 0;
-    // Monthly installs: real 30-day count from the backend, else ~4.3× the weekly
-    // baseline so a static-index package still shows a sensible per-month figure.
-    const installsMonth = raw.installsMonth ?? Math.round(installsWeek * 4.3);
+    // Monthly installs: the backend's real 30-day count. Fall back to the weekly
+    // number (never a fabricated multiple of it) when an older backend or the
+    // static index doesn't supply it, so the figure is always a real count.
+    const installsMonth = raw.installsMonth ?? installsWeek;
     const tags = raw.tags || [];
     const keywords = raw.keywords || raw.tags || [];
     return {
