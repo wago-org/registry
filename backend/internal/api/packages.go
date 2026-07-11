@@ -63,7 +63,7 @@ func (a *App) handleGetPackage(w http.ResponseWriter, r *http.Request) {
 		httpx.WriteError(w, http.StatusNotFound, "package not found")
 		return
 	}
-	httpx.WriteJSON(w, http.StatusOK, a.decoratePackage(p, a.viewerID(r)))
+	httpx.WriteJSON(w, http.StatusOK, a.decorateForViewer(p, a.Sessions.CurrentUser(r)))
 }
 
 // handleVersions returns a package's versions, newest first.

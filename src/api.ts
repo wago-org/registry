@@ -118,6 +118,7 @@ export function normalizePackage(raw: RawPackage): Package {
         verified: !!raw.verified,
         official: raw.official,
         ownerLogin: raw.ownerLogin,
+        canManage: raw.canManage,
         allowedPublishers: raw.allowedPublishers,
         dependencies: raw.dependencies,
         deprecatedMessage: raw.deprecatedMessage,
@@ -389,6 +390,13 @@ export async function resolveReport(id: string): Promise<void> {
 // Returns the updated package.
 export async function setPublishers(short: string, publishers: string[]): Promise<Package> {
     const raw = await apiSend<RawPackage>(`/api/packages/${short}/publishers`, "PUT", { publishers });
+    return normalizePackage(raw);
+}
+
+// transferPackage reassigns the package's owner login to a GitHub org the caller
+// owns (or back to their own login). Returns the updated package.
+export async function transferPackage(short: string, owner: string): Promise<Package> {
+    const raw = await apiSend<RawPackage>(`/api/packages/${short}/transfer`, "POST", { owner });
     return normalizePackage(raw);
 }
 

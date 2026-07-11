@@ -1154,6 +1154,30 @@ async function setDeprecated(message: string, undo: boolean): Promise<void> {
     render();
 }
 
+// transferPackage reassigns the package's owner login to the destination in the
+// transfer field (a GitHub org the caller owns, or another account), then
+// refreshes. On success the package may drop off the caller's control (if they
+// don't own the destination), so we honor the backend's canManage in the reply.
+async function transferPackage(): Promise<void> {
+    const p = state.pkg;
+    if (!p) return;
+    const owner = state.transferDraft.trim().replace(/^@/, "");
+    if (!owner || owner.toLowerCase() === (p.ownerLogin || "").toLowerCase()) return;
+    if (!confirm(`Transfer "${p.short}" to @${owner}? You keep management access only if you're an owner/admin of ${owner}.`)) return;
+    try {
+        const updated = await api.transferPackage(p.short, owner);
+        if (state.pkg?.short === p.short) {
+            state.pkg.ownerLogin = updated.ownerLogin;
+            state.pkg.canManage = updated.canManage;
+            state.pkg.allowedPublishers = updated.allowedPublishers || [];
+            state.transferDraft = "";
+        }
+    } catch {
+        alert("Couldn't transfer — check the destination login and that you're an owner/admin of it.");
+    }
+    render();
+}
+
 function dispatch(act: string, arg: string | null, el: HTMLElement): void {
     switch (act) {
         case "home":
@@ -1301,6 +1325,9 @@ function dispatch(act: string, arg: string | null, el: HTMLElement): void {
             break;
         case "undeprecate":
             void setDeprecated("", true);
+            break;
+        case "transfer":
+            void transferPackage();
             break;
         case "composer-open":
             if (!state.user) {
@@ -1514,6 +1541,7 @@ function wireEvents(): void {
             onPublisherInput();
         }
         else if (act === "deprecate-draft") state.deprecateDraft = value;
+        else if (act === "transfer-draft") state.transferDraft = value;
         else if (act === "comment-edit-draft") state.commentEditDraft = value;
         else if (act === "reply-draft") state.replyDraft = value;
         else if (act === "email-draft") state.emailDraft = value;

@@ -117,6 +117,7 @@ export interface Package {
     verified: boolean;
     official?: boolean;
     ownerLogin?: string;
+    canManage?: boolean; // backend-computed: may the current viewer manage this package (org-aware)
     allowedPublishers?: string[]; // extra logins the owner lets publish (beyond repo admins)
     dependencies?: string[]; // module paths this package depends on
     readme?: string; // module-level readme (markdown); fallback for subpackages

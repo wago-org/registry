@@ -1208,11 +1208,15 @@ function publishersSection(p: Package): string {
     </div>`;
 }
 
-// canManagePackage reports whether the viewer may open the package's Settings tab:
-// its owner login, or a site admin.
+// canManagePackage reports whether the viewer may open the package's Settings tab.
+// Prefers the backend's org-aware canManage flag (true for org owners/admins of an
+// org-owned package); falls back to owner-login / site-admin when it's absent (e.g.
+// the static, no-backend build).
 function canManagePackage(s: AppState): boolean {
+    if (s.pkg?.canManage) return true;
     const me = s.user?.login?.toLowerCase();
     if (!me) return false;
+    if (s.pkg?.canManage === false) return false; // backend spoke — trust it over the login guess
     return me === (s.pkg?.ownerLogin || "").toLowerCase() || !!s.user?.admin;
 }
 
@@ -1241,6 +1245,7 @@ function settingsTab(s: AppState): string {
     return `<div style="display:flex;flex-direction:column;gap:18px;max-width:660px">
       ${panel("Publishers", "Extra GitHub logins allowed to publish new versions, beyond the repo's authors/admins. Publishing is author-only by default.", publishersBody(s))}
       ${panel("Deprecation", "Flag this package as deprecated — a banner warns users on the package page.", deprecateBody(s))}
+      ${panel("Transfer ownership", "Hand this package to a GitHub org you own, or to another account. If you transfer to an org, you keep management access as long as you're an owner/admin of it.", transferBody(s))}
       ${dangerPanel(isOwner)}
     </div>`;
 }
@@ -1298,6 +1303,17 @@ function deprecateBody(s: AppState): string {
     return `<div style="display:flex;gap:6px;max-width:460px">
         <input data-act="deprecate-draft" value="${escAttr(s.deprecateDraft)}" placeholder="Reason (optional)" style="flex:1;min-width:0;font-family:'Outfit',sans-serif;font-size:13px;color:${C.text};background:${C.deep};border:1px solid ${C.line2};border-radius:9px;padding:8px 10px" />
         <button data-act="deprecate" style="flex-shrink:0;font-family:'Outfit',sans-serif;font-weight:700;font-size:12.5px;color:${C.text};background:transparent;border:1px solid ${C.line2};padding:8px 14px;border-radius:9px;cursor:pointer">Mark deprecated</button>
+      </div>`;
+}
+
+// transferBody is the ownership-transfer control: a destination login field
+// (org or user) + a Transfer button. The current owner is shown for reference.
+function transferBody(s: AppState): string {
+    const p = s.pkg!;
+    return `<div style="font-size:12.5px;color:${C.muted};margin-bottom:10px">Current owner: <span style="color:${C.text};font-family:'JetBrains Mono',monospace">@${esc(p.ownerLogin || "")}</span></div>
+      <div style="display:flex;gap:6px;max-width:360px">
+        <input data-act="transfer-draft" value="${escAttr(s.transferDraft)}" placeholder="destination org or user" spellcheck="false" autocomplete="off" style="flex:1;min-width:0;font-family:'JetBrains Mono',monospace;font-size:12.5px;color:${C.text};background:${C.deep};border:1px solid ${C.line2};border-radius:9px;padding:8px 10px" />
+        <button data-act="transfer" style="flex-shrink:0;font-family:'Outfit',sans-serif;font-weight:700;font-size:12.5px;color:${C.text};background:transparent;border:1px solid ${C.line2};padding:8px 14px;border-radius:9px;cursor:pointer">Transfer</button>
       </div>`;
 }
 

@@ -24,30 +24,38 @@ type orgRoleCache struct {
 	m  map[string]orgRoleEntry
 }
 
-// canModeratePackage reports whether viewer may moderate p's discussion (e.g.
-// hide comments): true for the package's direct owner login, or — when the
-// package is owned by a GitHub organization — for any owner (admin) of that org,
-// checked with the viewer's stored GitHub token and cached for orgRoleTTL.
-func (a *App) canModeratePackage(viewer *model.User, p model.Package) bool {
-	if viewer == nil {
+// ownsPackage reports whether u may manage p — set publishers, deprecate,
+// transfer, unpublish, moderate its discussion. True for the package's direct
+// owner login, a site admin, or — when the package is owned by a GitHub
+// organization — an owner/admin of that org, checked with the user's stored
+// GitHub token and cached for orgRoleTTL.
+func (a *App) ownsPackage(u *model.User, p model.Package) bool {
+	if u == nil {
 		return false
 	}
-	// Site admins moderate everything.
-	if viewer.Admin {
+	// Site admins manage everything.
+	if u.Admin {
 		return true
 	}
 	if p.OwnerLogin == "" {
 		return false
 	}
-	if strings.EqualFold(viewer.Login, p.OwnerLogin) {
+	if strings.EqualFold(u.Login, p.OwnerLogin) {
 		return true
 	}
 	// Beyond the direct owner, only a GitHub org owner qualifies — and that needs
-	// the viewer's token to ask GitHub for their role in the org.
-	if viewer.GitHubToken == "" {
+	// the user's token to ask GitHub for their role in the org.
+	if u.GitHubToken == "" {
 		return false
 	}
-	return a.viewerOwnsOrg(viewer, p.OwnerLogin)
+	return a.viewerOwnsOrg(u, p.OwnerLogin)
+}
+
+// canModeratePackage reports whether viewer may moderate p's discussion (e.g.
+// hide comments). Ownership and moderation rights coincide, so this defers to
+// ownsPackage.
+func (a *App) canModeratePackage(viewer *model.User, p model.Package) bool {
+	return a.ownsPackage(viewer, p)
 }
 
 // viewerOwnsOrg checks (and caches) whether viewer is an owner/admin of org.
