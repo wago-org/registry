@@ -26,9 +26,10 @@ type orgRoleCache struct {
 
 // ownsPackage reports whether u may manage p — set publishers, deprecate,
 // transfer, unpublish, moderate its discussion. True for the package's direct
-// owner login, a site admin, or — when the package is owned by a GitHub
-// organization — an owner/admin of that org, checked with the user's stored
-// GitHub token and cached for orgRoleTTL.
+// owner login, a site admin, or anyone with admin access to the package's source
+// repository (org owners and repo admins). Repo-admin is the reliable signal: it
+// needs no read:org scope (unlike GitHub org-membership), works with the login
+// token we already hold, and is exactly what publishing checks.
 func (a *App) ownsPackage(u *model.User, p model.Package) bool {
 	if u == nil {
 		return false
@@ -37,18 +38,19 @@ func (a *App) ownsPackage(u *model.User, p model.Package) bool {
 	if u.Admin {
 		return true
 	}
-	if p.OwnerLogin == "" {
-		return false
-	}
-	if strings.EqualFold(u.Login, p.OwnerLogin) {
+	if p.OwnerLogin != "" && strings.EqualFold(u.Login, p.OwnerLogin) {
 		return true
 	}
-	// Beyond the direct owner, only a GitHub org owner qualifies — and that needs
-	// the user's token to ask GitHub for their role in the org.
+	// Beyond the direct owner, admin on the package's source repo qualifies — an
+	// org owner (or a repo admin) controls the source, hence the package.
 	if u.GitHubToken == "" {
 		return false
 	}
-	return a.viewerOwnsOrg(u, p.OwnerLogin)
+	owner, repo, ok := parseGitHubRepo(p.Repository)
+	if !ok {
+		return false
+	}
+	return a.repoAdmin(u, owner, repo)
 }
 
 // canModeratePackage reports whether viewer may moderate p's discussion (e.g.
@@ -58,9 +60,15 @@ func (a *App) canModeratePackage(viewer *model.User, p model.Package) bool {
 	return a.ownsPackage(viewer, p)
 }
 
-// viewerOwnsOrg checks (and caches) whether viewer is an owner/admin of org.
-func (a *App) viewerOwnsOrg(viewer *model.User, org string) bool {
-	key := strings.ToLower(viewer.Login) + "@" + strings.ToLower(org)
+// repoAdmin reports (and caches) whether u has admin access to owner/repo on
+// GitHub — the signal that they control the package's source, hence the package.
+// Cached for orgRoleTTL so a logged-in user viewing packages doesn't trigger a
+// GitHub call per view.
+func (a *App) repoAdmin(u *model.User, owner, repo string) bool {
+	if u.GitHubToken == "" {
+		return false
+	}
+	key := strings.ToLower(u.Login) + "@" + strings.ToLower(owner) + "/" + strings.ToLower(repo)
 	now := time.Now()
 
 	a.orgRoles.mu.Lock()
@@ -70,14 +78,14 @@ func (a *App) viewerOwnsOrg(viewer *model.User, org string) bool {
 	}
 	a.orgRoles.mu.Unlock()
 
-	role, err := a.GitHub.OrgRole(viewer.GitHubToken, org)
-	owner := err == nil && role == "admin"
+	perm, _, err := a.GitHub.RepoAccess(u.GitHubToken, owner, repo)
+	admin := err == nil && perm == "admin"
 
 	a.orgRoles.mu.Lock()
 	if a.orgRoles.m == nil {
 		a.orgRoles.m = map[string]orgRoleEntry{}
 	}
-	a.orgRoles.m[key] = orgRoleEntry{owner: owner, expires: now.Add(orgRoleTTL)}
+	a.orgRoles.m[key] = orgRoleEntry{owner: admin, expires: now.Add(orgRoleTTL)}
 	a.orgRoles.mu.Unlock()
-	return owner
+	return admin
 }

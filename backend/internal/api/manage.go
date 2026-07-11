@@ -124,15 +124,21 @@ func (a *App) handleTransfer(w http.ResponseWriter, r *http.Request) {
 		httpx.WriteJSON(w, http.StatusOK, a.decorateForViewer(p, u))
 		return
 	}
-	// The caller must control the destination: their own login, or a GitHub org
-	// they own/admin (verified with their token).
+	// The caller may transfer to their own login, or to the GitHub owner of the
+	// package's source repo — verified with admin access to that repo (org owners
+	// and repo admins qualify), which needs no read:org scope.
 	if !strings.EqualFold(target, u.Login) {
-		if u.GitHubToken == "" {
-			httpx.WriteError(w, http.StatusForbidden, "re-authenticate to verify your access to "+target)
+		repoOwner, repo, ok := parseGitHubRepo(p.Repository)
+		if !ok {
+			httpx.WriteError(w, http.StatusBadRequest, "this package has no GitHub repository, so it can only be transferred to your own account")
 			return
 		}
-		if !a.viewerOwnsOrg(u, target) {
-			httpx.WriteError(w, http.StatusForbidden, "you must be an owner or admin of "+target+" to transfer it there")
+		if !strings.EqualFold(target, repoOwner) {
+			httpx.WriteError(w, http.StatusForbidden, "you can only transfer this package to @"+repoOwner+" (the owner of its GitHub repo) or to your own account")
+			return
+		}
+		if !a.repoAdmin(u, repoOwner, repo) {
+			httpx.WriteError(w, http.StatusForbidden, "you must have admin access to github.com/"+repoOwner+"/"+repo+" to transfer it to @"+target)
 			return
 		}
 	}
