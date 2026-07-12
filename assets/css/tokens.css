@@ -202,19 +202,18 @@ button {
     height: 15px;
     display: block;
 }
-/* Install-command copy button (package page): same icon treatment as code blocks. */
+/* Install command (package page): the whole box is click-to-copy; the copy
+   affordance is invisible until clicked, when a checkmark briefly flashes. */
+.install-box:hover {
+    border-color: var(--line-2);
+}
+.install-box.copied {
+    border-color: var(--green);
+}
 .install-copy svg {
     width: 14px;
     height: 14px;
     display: block;
-}
-.install-copy:hover {
-    color: var(--text);
-    background: var(--panel-2);
-}
-.install-copy.copied {
-    color: var(--green);
-    border-color: var(--green);
 }
 .md pre code {
     background: none;
