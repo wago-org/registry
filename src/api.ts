@@ -84,7 +84,7 @@ function computeStats(packages: Package[], fallback: StatDef[]): StatDef[] {
         for (const c of p.contributors || []) people.add(c.toLowerCase());
     }
     return [
-        { value: compactNum(packages.length), label: "packages" },
+        { value: compactNum(packages.length), label: "plugins" },
         { value: compactNum(installs), label: "installs / month" },
         { value: compactNum(people.size), label: "contributors" },
     ];

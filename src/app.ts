@@ -59,7 +59,7 @@ function render(): void {
     enhanceSparkline();
 }
 
-const SITE = "wago packages";
+const SITE = "wago plugins";
 const SITE_ORIGIN = "https://pkg.wago.sh";
 
 // currentMeta derives the tab title + social/canonical metadata for the current
@@ -72,7 +72,7 @@ function currentMeta(): { title: string; description: string; url: string; image
         const p = state.pkg;
         return {
             title: `${p.short} — ${SITE}`,
-            description: p.description || `${p.name} — a package on the wago registry.`,
+            description: p.description || `${p.name} — a plugin on the wago registry.`,
             url,
             image,
         };
@@ -81,7 +81,7 @@ function currentMeta(): { title: string; description: string; url: string; image
         const u = state.viewUser;
         return {
             title: `@${u.login} — ${SITE}`,
-            description: u.bio || `${u.name || u.login} on the wago package registry.`,
+            description: u.bio || `${u.name || u.login} on the wago plugin registry.`,
             url,
             image: u.avatarUrl || image,
         };
@@ -94,11 +94,11 @@ function currentMeta(): { title: string; description: string; url: string; image
     }
     if (state.screen === "search") {
         const t = state.query ? `${state.query} — search — ${SITE}` : `Search — ${SITE}`;
-        return { title: t, description: "Search the wago package registry.", url, image };
+        return { title: t, description: "Search the wago plugin registry.", url, image };
     }
     return {
         title: `${SITE} — registry`,
-        description: "The wago package registry — host-import bundles, WASI shims, debuggers and codegen backends. Drop-in Go modules for the wago WebAssembly engine.",
+        description: "The wago plugin registry — host-import bundles, WASI shims, debuggers and codegen backends. Drop-in Go modules for the wago WebAssembly engine.",
         url: `${SITE_ORIGIN}/`,
         image,
     };

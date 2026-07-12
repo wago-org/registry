@@ -146,11 +146,11 @@ export function nav(s: AppState): string {
   <a href="/" data-act="home" style="display:flex;align-items:center;gap:11px;text-decoration:none;flex-shrink:0">
     <img src="/assets/wago-logo.png" alt="wago" style="width:34px;height:34px;border-radius:9px;flex-shrink:0" />
     <span style="font-weight:800;font-size:20px;letter-spacing:-0.5px">wago</span>
-    <span class="r-navtag" style="font-family:'JetBrains Mono',monospace;font-size:11.5px;color:${C.lilac};border:1px solid ${C.line2};padding:3px 10px;border-radius:100px;margin-left:2px">packages</span>
+    <span class="r-navtag" style="font-family:'JetBrains Mono',monospace;font-size:11.5px;color:${C.lilac};border:1px solid ${C.line2};padding:3px 10px;border-radius:100px;margin-left:2px">plugins</span>
   </a>
   <div class="r-navsearch" style="flex:1;min-width:0;display:flex;align-items:center;gap:10px;background:${C.deep};border:1px solid ${C.line};border-radius:10px;padding:9px 14px;max-width:560px">
     <span style="color:${C.muted};font-size:15px">⌕</span>
-    <input value="${escAttr(s.query)}" data-act="query" data-enter="search" placeholder="Search packages…" style="flex:1;min-width:0;background:transparent;border:none;outline:none;color:${C.text};font-size:14.5px" />
+    <input value="${escAttr(s.query)}" data-act="query" data-enter="search" placeholder="Search plugins…" style="flex:1;min-width:0;background:transparent;border:none;outline:none;color:${C.text};font-size:14.5px" />
     <span style="font-family:'JetBrains Mono',monospace;font-size:10.5px;color:${C.muted};border:1px solid ${C.line};padding:2px 7px;border-radius:5px">↵</span>
   </div>
   <div style="display:flex;align-items:center;gap:14px;flex-shrink:0">
@@ -191,7 +191,7 @@ export function notificationsScreen(s: AppState): string {
               : list.map(notificationCard).join("");
     return `<div style="max-width:720px;margin:0 auto;padding:36px 0 80px">
       <h1 style="font-family:'Outfit',sans-serif;font-weight:800;font-size:26px;margin:0 0 4px;color:${C.text}">Notifications</h1>
-      <p style="font-size:13.5px;color:${C.muted};margin:0 0 22px">Invites to publish packages and offers to take ownership.</p>
+      <p style="font-size:13.5px;color:${C.muted};margin:0 0 22px">Invites to publish plugins and offers to take ownership.</p>
       <div style="display:flex;flex-direction:column;gap:12px">${body}</div>
     </div>`;
 }
@@ -281,7 +281,7 @@ function profileMenu(s: AppState): string {
     const u = s.user!;
     const menuItems = [
         { label: "Your profile", icon: "◉", tab: "profile" },
-        { label: "Your packages", icon: "▤", tab: "plugins" },
+        { label: "Your plugins", icon: "▤", tab: "plugins" },
         { label: "Your stars", icon: "★", tab: "stars" },
         { label: "Saved", icon: bookmarkIcon(14, "currentColor", true), tab: "saved" },
         ...(u.admin ? [{ label: "Reports", icon: "⚑", tab: "reports" }] : []),
@@ -329,7 +329,7 @@ export function footer(s: AppState): string {
   <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:20px;padding:28px 0">
     <div style="display:flex;align-items:center;gap:12px">
       <img src="/assets/wago-logo.png" alt="" style="width:34px;height:34px;border-radius:9px" />
-      <span style="font-size:13px;color:${C.muted}">wago packages · ${esc(total)} indexed · Apache 2.0</span>
+      <span style="font-size:13px;color:${C.muted}">wago plugins · ${esc(total)} indexed · Apache 2.0</span>
     </div>
     <div style="display:flex;gap:22px;font-size:14px;font-weight:600;color:${C.lilac}">
       <a href="https://github.com/wago-org/wago" target="_blank" rel="noopener" style="text-decoration:none">GitHub</a>
@@ -383,12 +383,12 @@ export function homeScreen(s: AppState): string {
     return `
 <div>
   <section class="r-hero" style="text-align:center;padding:72px 0 40px">
-    <div style="display:inline-flex;align-items:center;gap:8px;font-family:'JetBrains Mono',monospace;font-size:12px;color:${C.lilac};background:${C.panel};border:1px solid ${C.line};padding:6px 14px;border-radius:100px;margin-bottom:24px">✦ the wago package registry</div>
+    <div style="display:inline-flex;align-items:center;gap:8px;font-family:'JetBrains Mono',monospace;font-size:12px;color:${C.lilac};background:${C.panel};border:1px solid ${C.line};padding:6px 14px;border-radius:100px;margin-bottom:24px">✦ the wago plugin registry</div>
     <h1 style="font-weight:900;font-size:clamp(30px,5.5vw,58px);line-height:1.04;letter-spacing:-2px;margin:0 0 16px">Extend your runtime.<br><span style="color:${C.lilac}">One import away.</span></h1>
     <p style="font-size:clamp(15px,2.6vw,18px);line-height:1.6;color:${C.soft};margin:0 auto 34px;max-width:560px">Host-import bundles, WASI shims, debuggers and codegen backends — drop-in Go modules for the wago engine.</p>
     <div style="display:flex;align-items:center;gap:11px;background:${C.deep};border:1px solid ${C.line};border-radius:14px;padding:14px 18px;max-width:600px;margin:0 auto 18px">
       <span style="color:${C.muted};font-size:20px">⌕</span>
-      <input value="${escAttr(s.query)}" data-act="query" data-enter="search" placeholder="Search ${esc(totalLabel)} packages…" style="flex:1;min-width:0;background:transparent;border:none;outline:none;color:${C.text};font-size:17px" />
+      <input value="${escAttr(s.query)}" data-act="query" data-enter="search" placeholder="Search ${esc(totalLabel)} plugins…" style="flex:1;min-width:0;background:transparent;border:none;outline:none;color:${C.text};font-size:17px" />
       <button data-act="search" style="font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;color:${C.bg};background:${C.lilac};border:none;padding:9px 18px;border-radius:9px;cursor:pointer">Search</button>
     </div>
     <div style="display:flex;justify-content:center;gap:9px;flex-wrap:wrap">${cats}</div>
@@ -398,7 +398,7 @@ export function homeScreen(s: AppState): string {
 
   <section style="margin-bottom:52px">
     <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:18px">
-      <h2 style="font-weight:800;font-size:24px;letter-spacing:-0.6px;margin:0">Featured packages</h2>
+      <h2 style="font-weight:800;font-size:24px;letter-spacing:-0.6px;margin:0">Featured plugins</h2>
       <a href="/search" data-act="search" style="text-decoration:none;font-family:'JetBrains Mono',monospace;font-size:12.5px;color:${C.lilac}">browse all →</a>
     </div>
     <div class="r-grid3" style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px">${featured || emptyCatalogNote()}</div>
@@ -419,7 +419,7 @@ function starMetric(p: Package, size = 12): string {
 
 // Shown wherever a package list is empty (nothing published yet).
 function emptyCatalogNote(): string {
-    return `<div style="grid-column:1/-1;padding:44px;text-align:center;color:${C.muted};font-size:14px;background:${C.panel};border:1px solid ${C.line};border-radius:14px">No packages published yet. <a href="https://github.com/wago-org/wago" target="_blank" rel="noopener" style="color:${C.lilac};text-decoration:none;font-weight:700">Publish the first one ↗</a></div>`;
+    return `<div style="grid-column:1/-1;padding:44px;text-align:center;color:${C.muted};font-size:14px;background:${C.panel};border:1px solid ${C.line};border-radius:14px">No plugins published yet. <a href="https://github.com/wago-org/wago" target="_blank" rel="noopener" style="color:${C.lilac};text-decoration:none;font-weight:700">Publish the first one ↗</a></div>`;
 }
 
 function featuredCard(p: Package): string {
@@ -468,14 +468,14 @@ export function searchRows(s: AppState): string {
         filterPackages(s)
             .map((p) => searchRow(p))
             .join("") ||
-        `<div style="padding:44px;text-align:center;color:${C.muted};font-size:14px;background:${C.panel};border:1px solid ${C.line};border-radius:14px">No packages${s.query ? ` matching “${esc(s.query)}”` : " published yet"}.</div>`
+        `<div style="padding:44px;text-align:center;color:${C.muted};font-size:14px;background:${C.panel};border:1px solid ${C.line};border-radius:14px">No plugins${s.query ? ` matching “${esc(s.query)}”` : " published yet"}.</div>`
     );
 }
 
 // The "N results for X" summary line — also patched live.
 export function searchSummary(s: AppState): string {
     const n = filterPackages(s).length;
-    const shown = s.query || "all packages";
+    const shown = s.query || "all plugins";
     return `${n} result${n === 1 ? "" : "s"} for <span style="color:${C.text};font-weight:700">"${esc(shown)}"</span>`;
 }
 
@@ -623,7 +623,7 @@ export function packageScreen(s: AppState): string {
 
     return `
 <div style="padding:28px 0 72px">
-  <div style="font-family:'JetBrains Mono',monospace;font-size:12.5px;color:${C.muted};margin-bottom:16px"><a href="/" data-act="home" style="text-decoration:none;color:${C.muted}">packages</a>${catCrumb}${sep}<span style="color:${C.lilac}">${esc(p.short)}</span></div>
+  <div style="font-family:'JetBrains Mono',monospace;font-size:12.5px;color:${C.muted};margin-bottom:16px"><a href="/" data-act="home" style="text-decoration:none;color:${C.muted}">plugins</a>${catCrumb}${sep}<span style="color:${C.lilac}">${esc(p.short)}</span></div>
 
   <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:12px">
     <h1 style="font-family:'JetBrains Mono',monospace;font-weight:700;font-size:clamp(24px,3.4vw,34px);letter-spacing:-1px;margin:0;word-break:break-all">${esc(p.name)}</h1>
@@ -659,7 +659,7 @@ export function packageScreen(s: AppState): string {
 // for them from then on), just be sent to GitHub to star manually, and tick
 // "don't ask again" to skip this next time.
 function starConsentModal(s: AppState): string {
-    const repo = s.pkg?.short ? esc(s.pkg.short) : "this package";
+    const repo = s.pkg?.short ? esc(s.pkg.short) : "this plugin";
     const check = s.starPromptDontAsk;
     return `
     <div data-act="star-cancel" style="position:fixed;inset:0;z-index:120;background:rgba(11,8,32,0.66);backdrop-filter:blur(3px);display:flex;align-items:center;justify-content:center;padding:20px">
@@ -797,7 +797,7 @@ function reviewsTab(s: AppState): string {
         ? s.composerOpen
             ? composerOpenBlock(s, activeRating)
             : composerClosedBlock()
-        : signInPrompt("star this package or leave a review");
+        : signInPrompt("star this plugin or leave a review");
     const list = s.reviewsLoading
         ? loading("Loading reviews…")
         : s.reviews.map((r) => reviewCard(r)).join("") || empty("No reviews yet. Be the first.");
@@ -809,7 +809,7 @@ function reviewsTab(s: AppState): string {
       <div style="font-size:16px;letter-spacing:2px;color:${tier(p.score)};margin-top:4px">${starStr(p.rating)}</div>
       <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:${C.muted};margin-top:5px">${s.reviewsSummary.count || p.ratingCount} ratings</div>
     </div>
-    <div style="flex:1;min-width:220px;font-size:14px;line-height:1.6;color:${C.soft}">Developers rate this package highly for reliability and documentation. Share how it worked for you.</div>
+    <div style="flex:1;min-width:220px;font-size:14px;line-height:1.6;color:${C.soft}">Developers rate this plugin highly for reliability and documentation. Share how it worked for you.</div>
   </div>
   ${composer}
   <div style="display:flex;flex-direction:column;gap:14px">${list}</div>
@@ -834,7 +834,7 @@ function empty(txt: string): string {
 function composerClosedBlock(): string {
     return `
   <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;background:${C.deep};border:1px solid ${C.line};border-radius:14px;padding:14px 20px;margin-bottom:24px;flex-wrap:wrap">
-    <span style="font-size:13.5px;color:${C.soft}">Used this package? A quick ★ star above helps others — or leave a full review.</span>
+    <span style="font-size:13.5px;color:${C.soft}">Used this plugin? A quick ★ star above helps others — or leave a full review.</span>
     <button data-act="composer-open" style="font-family:'JetBrains Mono',monospace;font-size:12.5px;font-weight:700;color:${C.lilac};background:transparent;border:1px solid ${C.line2};padding:8px 15px;border-radius:9px;cursor:pointer;white-space:nowrap">Write a review</button>
   </div>`;
 }
@@ -1037,14 +1037,14 @@ function dependentsOf(s: AppState, p: Package): Package[] {
 // dependenciesTab lists the packages this package depends on.
 function dependenciesTab(s: AppState): string {
     const deps = s.pkg!.dependencies || [];
-    if (!deps.length) return depEmpty("No dependencies", "This package doesn’t declare any wago dependencies.");
+    if (!deps.length) return depEmpty("No dependencies", "This plugin doesn’t declare any wago dependencies.");
     return `<div style="display:flex;flex-direction:column;gap:10px">${deps.map((m) => depRow(s, m)).join("")}</div>`;
 }
 
 // dependentsTab lists the registry packages that depend on this one.
 function dependentsTab(s: AppState): string {
     const dependents = dependentsOf(s, s.pkg!);
-    if (!dependents.length) return depEmpty("No dependents", "No packages in the registry depend on this one yet.");
+    if (!dependents.length) return depEmpty("No dependents", "No plugins in the registry depend on this one yet.");
     return `<div style="display:flex;flex-direction:column;gap:10px">${dependents.map((x) => pkgLinkRow(x)).join("")}</div>`;
 }
 
@@ -1302,7 +1302,7 @@ function canManagePackage(s: AppState): boolean {
 function reportLink(s: AppState): string {
     if (!s.user) return "";
     return `<div style="margin-top:16px;padding-top:14px;border-top:1px solid ${C.line}">
-      <button data-act="report-open" style="display:flex;align-items:center;gap:7px;width:100%;justify-content:center;font-family:'Outfit',sans-serif;font-weight:600;font-size:12.5px;color:${C.muted};background:transparent;border:1px solid ${C.line};padding:8px;border-radius:9px;cursor:pointer">⚑ Report package</button>
+      <button data-act="report-open" style="display:flex;align-items:center;gap:7px;width:100%;justify-content:center;font-family:'Outfit',sans-serif;font-weight:600;font-size:12.5px;color:${C.muted};background:transparent;border:1px solid ${C.line};padding:8px;border-radius:9px;cursor:pointer">⚑ Report plugin</button>
     </div>`;
 }
 
@@ -1311,7 +1311,7 @@ function reportLink(s: AppState): string {
 // renders for owner/admin, but re-check here defensively).
 function settingsTab(s: AppState): string {
     if (!canManagePackage(s)) {
-        return `<div style="color:${C.muted};font-size:14px;padding:20px 0">You don't manage this package.</div>`;
+        return `<div style="color:${C.muted};font-size:14px;padding:20px 0">You don't manage this plugin.</div>`;
     }
     const p = s.pkg!;
     const isOwner = (s.user?.login || "").toLowerCase() === (p.ownerLogin || "").toLowerCase();
@@ -1321,8 +1321,8 @@ function settingsTab(s: AppState): string {
         <p style="font-size:12.5px;line-height:1.5;color:${C.muted};margin:0 0 14px">${desc}</p>${body}</section>`;
     return `<div style="display:flex;flex-direction:column;gap:18px;max-width:660px">
       ${panel("Publishers", "Extra GitHub logins allowed to publish new versions, beyond the repo's authors/admins. Publishing is author-only by default.", publishersBody(s))}
-      ${panel("Deprecation", "Flag this package as deprecated — a banner warns users on the package page.", deprecateBody(s))}
-      ${panel("Transfer ownership", "Hand this package to a GitHub org you own, or to another account. If you transfer to an org, you keep management access as long as you're an owner/admin of it.", transferBody(s))}
+      ${panel("Deprecation", "Flag this plugin as deprecated — a banner warns users on the plugin page.", deprecateBody(s))}
+      ${panel("Transfer ownership", "Hand this plugin to a GitHub org you own, or to another account. If you transfer to an org, you keep management access as long as you're an owner/admin of it.", transferBody(s))}
       ${dangerPanel(isOwner)}
     </div>`;
 }
@@ -1432,10 +1432,10 @@ export function transferDropdownHtml(s: AppState): string {
 
 // dangerPanel holds the destructive action: unpublish (owner) / take down (admin).
 function dangerPanel(isOwner: boolean): string {
-    const label = isOwner ? "Unpublish package" : "Take down package";
+    const label = isOwner ? "Unpublish plugin" : "Take down plugin";
     const desc = isOwner
-        ? "Remove this package and all its versions from the registry. This can't be undone."
-        : "Remove this package from the registry as a site admin. This can't be undone.";
+        ? "Remove this plugin and all its versions from the registry. This can't be undone."
+        : "Remove this plugin from the registry as a site admin. This can't be undone.";
     return `<section style="background:#2a1522;border:1px solid #6b3453;border-radius:14px;padding:20px 22px">
         <h3 style="font-family:'Outfit',sans-serif;font-weight:800;font-size:15px;margin:0 0 4px;color:#ffb4d2">Danger zone</h3>
         <p style="font-size:12.5px;line-height:1.5;color:#e0a9c4;margin:0 0 14px">${desc}</p>
@@ -1473,7 +1473,7 @@ function reportModal(s: AppState): string {
         .join("");
     const canSend = !!s.reportReason && !s.reportSending;
     return shell(
-        `<div style="display:flex;align-items:center;gap:10px;margin-bottom:6px"><span style="font-size:18px;color:${C.pink}">⚑</span><h2 style="font-weight:800;font-size:18px;margin:0">Report ${esc(s.pkg?.short || "package")}</h2></div>
+        `<div style="display:flex;align-items:center;gap:10px;margin-bottom:6px"><span style="font-size:18px;color:${C.pink}">⚑</span><h2 style="font-weight:800;font-size:18px;margin:0">Report ${esc(s.pkg?.short || "plugin")}</h2></div>
      <p style="font-size:13px;line-height:1.55;color:${C.muted};margin:0 0 16px">This goes to the wago moderators. Not for bugs — use the repo's issues for those.</p>
      <div style="display:flex;flex-direction:column;gap:7px;margin-bottom:14px">${opts}</div>
      <textarea data-act="report-detail" placeholder="Add details (optional)" style="width:100%;box-sizing:border-box;min-height:70px;resize:vertical;font-family:'Outfit',sans-serif;font-size:13.5px;color:${C.text};background:${C.deep};border:1px solid ${C.line2};border-radius:11px;padding:11px;margin-bottom:16px">${esc(s.reportDetail)}</textarea>
@@ -1519,7 +1519,7 @@ export function authScreen(s: AppState): string {
     <div style="text-align:center;margin-bottom:26px">
       <img src="/assets/wago-logo.png" alt="wago" style="width:52px;height:52px;border-radius:13px;margin-bottom:16px" />
       <h1 style="font-weight:800;font-size:26px;letter-spacing:-0.8px;margin:0 0 6px">Sign in to wago</h1>
-      <p style="font-size:14.5px;line-height:1.55;color:${C.muted};margin:0">Use your GitHub account to star, review and publish packages — no separate password to manage.</p>
+      <p style="font-size:14.5px;line-height:1.55;color:${C.muted};margin:0">Use your GitHub account to star, review and publish plugins — no separate password to manage.</p>
     </div>
     ${err}
     <div style="background:${C.panel};border:1px solid ${C.line};border-radius:18px;padding:30px 26px">
@@ -1554,7 +1554,7 @@ export function accountScreen(s: AppState): string {
     const u = s.user!;
     const nav = [
         { k: "profile", l: "Profile", icon: "◉" },
-        { k: "plugins", l: "Your packages", icon: "▤" },
+        { k: "plugins", l: "Your plugins", icon: "▤" },
         { k: "stars", l: "Your stars", icon: "★" },
         { k: "saved", l: "Saved", icon: bookmarkIcon(13, "currentColor", true) },
         ...(u.admin ? [{ k: "reports", l: "Reports", icon: "⚑" }] : []),
@@ -1626,7 +1626,7 @@ function acctProfile(s: AppState): string {
               <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:${C.muted};white-space:nowrap">updated ${esc(relative(p.updatedAt))}</span>
             </a>`;
             })
-            .join("") || `<div style="padding:18px;color:${C.muted};font-size:13.5px;background:${C.panel}">You haven't published any packages yet.</div>`;
+            .join("") || `<div style="padding:18px;color:${C.muted};font-size:13.5px;background:${C.panel}">You haven't published any plugins yet.</div>`;
     const bio = s.bioDraft != null ? s.bioDraft : u.bio || "";
     return `
       <div>
@@ -1654,13 +1654,13 @@ function acctProfile(s: AppState): string {
         </div>
 
         <div class="r-grid3" style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:26px">
-          <div style="background:${C.panel};border:1px solid ${C.line};border-radius:14px;padding:18px 20px;text-align:center"><div style="font-family:'JetBrains Mono',monospace;font-weight:700;font-size:28px;color:${C.lilac};line-height:1">${owned.length}</div><div style="font-size:12.5px;color:${C.muted};margin-top:5px">packages published</div></div>
+          <div style="background:${C.panel};border:1px solid ${C.line};border-radius:14px;padding:18px 20px;text-align:center"><div style="font-family:'JetBrains Mono',monospace;font-weight:700;font-size:28px;color:${C.lilac};line-height:1">${owned.length}</div><div style="font-size:12.5px;color:${C.muted};margin-top:5px">plugins published</div></div>
           <a href="#/account" data-act="acct-tab" data-arg="stars" style="text-decoration:none;background:${C.panel};border:1px solid ${C.line};border-radius:14px;padding:18px 20px;text-align:center;display:block"><div style="font-family:'JetBrains Mono',monospace;font-weight:700;font-size:28px;color:${C.green};line-height:1">${s.starShorts ? s.starShorts.length : "—"}</div><div style="font-size:12.5px;color:${C.muted};margin-top:5px">★ stars given</div></a>
           <div style="background:${C.panel};border:1px solid ${C.line};border-radius:14px;padding:18px 20px;text-align:center"><div style="font-family:'JetBrains Mono',monospace;font-weight:700;font-size:28px;color:${C.pink};line-height:1">${compactNum(owned.reduce((a, b) => a + b.installsWeek, 0))}</div><div style="font-size:12.5px;color:${C.muted};margin-top:5px">installs / week</div></div>
         </div>
 
         <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:14px">
-          <h2 style="font-weight:800;font-size:20px;letter-spacing:-0.5px;margin:0">Your packages</h2>
+          <h2 style="font-weight:800;font-size:20px;letter-spacing:-0.5px;margin:0">Your plugins</h2>
           <a href="#/account" data-act="acct-tab" data-arg="plugins" style="text-decoration:none;font-family:'JetBrains Mono',monospace;font-size:12.5px;color:${C.lilac}">manage all →</a>
         </div>
         <div style="border:1px solid ${C.line};border-radius:14px;overflow:hidden">${rows}</div>
@@ -1693,8 +1693,8 @@ function acctPlugins(s: AppState): string {
     return `
       <div>
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:10px">
-          <h1 style="font-weight:800;font-size:24px;letter-spacing:-0.6px;margin:0">Your packages <span style="font-family:'JetBrains Mono',monospace;font-size:15px;color:${C.muted};font-weight:500">${owned.length}</span></h1>
-          <a href="https://github.com/wago-org/wago" target="_blank" rel="noopener" style="text-decoration:none;font-size:13px;font-weight:700;color:${C.bg};background:${C.lilac};padding:9px 16px;border-radius:9px">Publish a package ↗</a>
+          <h1 style="font-weight:800;font-size:24px;letter-spacing:-0.6px;margin:0">Your plugins <span style="font-family:'JetBrains Mono',monospace;font-size:15px;color:${C.muted};font-weight:500">${owned.length}</span></h1>
+          <a href="https://github.com/wago-org/wago" target="_blank" rel="noopener" style="text-decoration:none;font-size:13px;font-weight:700;color:${C.bg};background:${C.lilac};padding:9px 16px;border-radius:9px">Publish a plugin ↗</a>
         </div>
         <div style="border:1px solid ${C.line};border-radius:14px;overflow:hidden">${rows}</div>
       </div>`;
@@ -1743,7 +1743,7 @@ function acctSaved(s: AppState): string {
     const saved = s.savedShorts.map((sh) => byShort.get(sh)).filter((p): p is Package => !!p);
     let body: string;
     if (saved.length === 0) {
-        body = `<div style="padding:26px;color:${C.muted};font-size:14px;background:${C.panel};text-align:center">Nothing saved yet. Hit Save on a package to keep it here for later.<div style="margin-top:12px"><a href="/search" data-act="search" style="text-decoration:none;font-family:'JetBrains Mono',monospace;font-size:12.5px;font-weight:700;color:${C.lilac};border:1px solid ${C.line2};padding:8px 15px;border-radius:9px">Browse packages →</a></div></div>`;
+        body = `<div style="padding:26px;color:${C.muted};font-size:14px;background:${C.panel};text-align:center">Nothing saved yet. Hit Save on a plugin to keep it here for later.<div style="margin-top:12px"><a href="/search" data-act="search" style="text-decoration:none;font-family:'JetBrains Mono',monospace;font-size:12.5px;font-weight:700;color:${C.lilac};border:1px solid ${C.line2};padding:8px 15px;border-radius:9px">Browse plugins →</a></div></div>`;
     } else {
         const list = saved
             .map(
@@ -1786,7 +1786,7 @@ function acctStars(s: AppState): string {
     if (shorts === null) {
         body = `<div style="padding:20px;color:${C.muted};font-size:14px;background:${C.panel}">Loading your stars…</div>`;
     } else if (starred.length === 0) {
-        body = `<div style="padding:26px;color:${C.muted};font-size:14px;background:${C.panel};text-align:center">You haven't starred any packages yet. Browse the registry and hit ★ on ones you like.<div style="margin-top:12px"><a href="/search" data-act="search" style="text-decoration:none;font-family:'JetBrains Mono',monospace;font-size:12.5px;font-weight:700;color:${C.lilac};border:1px solid ${C.line2};padding:8px 15px;border-radius:9px">Browse packages →</a></div></div>`;
+        body = `<div style="padding:26px;color:${C.muted};font-size:14px;background:${C.panel};text-align:center">You haven't starred any plugins yet. Browse the registry and hit ★ on ones you like.<div style="margin-top:12px"><a href="/search" data-act="search" style="text-decoration:none;font-family:'JetBrains Mono',monospace;font-size:12.5px;font-weight:700;color:${C.lilac};border:1px solid ${C.line2};padding:8px 15px;border-radius:9px">Browse plugins →</a></div></div>`;
     } else {
         const list = starred
             .map(
@@ -1894,7 +1894,7 @@ export function userScreen(s: AppState): string {
             </a>`;
             })
             .join("") ||
-        `<div style="padding:20px;color:${C.muted};font-size:14px;background:${C.panel}">No packages found for this user in the registry.</div>`;
+        `<div style="padding:20px;color:${C.muted};font-size:14px;background:${C.panel}">No plugins found for this user in the registry.</div>`;
 
     // Organizations to surface: for a person, their GitHub orgs that own a wago
     // package (the "attached to a wago package" rule); for an org profile, its
@@ -1923,7 +1923,7 @@ export function userScreen(s: AppState): string {
 
     return `
 <div style="padding:32px 0 72px">
-  <div style="font-family:'JetBrains Mono',monospace;font-size:12.5px;color:${C.muted};margin-bottom:16px"><a href="/" data-act="home" style="text-decoration:none;color:${C.muted}">packages</a> <span style="color:${C.line2}">/</span> <span style="color:${C.lilac}">@${esc(login)}</span></div>
+  <div style="font-family:'JetBrains Mono',monospace;font-size:12.5px;color:${C.muted};margin-bottom:16px"><a href="/" data-act="home" style="text-decoration:none;color:${C.muted}">plugins</a> <span style="color:${C.line2}">/</span> <span style="color:${C.lilac}">@${esc(login)}</span></div>
   ${unclaimedNote}
   <div style="display:flex;align-items:flex-start;gap:20px;background:${C.panel};border:1px solid ${C.line};border-radius:18px;padding:26px;margin-bottom:18px;flex-wrap:wrap">
     ${avatarSpan(vu.name, initial, avatarBgFor(login), vu.avatarUrl, 76, 30)}
@@ -1940,13 +1940,13 @@ export function userScreen(s: AppState): string {
   </div>
 
   <div class="r-grid3" style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:26px">
-    ${statCard(String(pkgs.length), "packages", C.lilac)}
+    ${statCard(String(pkgs.length), "plugins", C.lilac)}
     ${statCard(compactNum(totalStars), "★ stars received", C.green)}
     ${statCard(compactNum(totalInstalls), "installs / week", C.pink)}
   </div>
 
   ${accountsSection}
-  <h2 style="font-weight:800;font-size:20px;letter-spacing:-0.5px;margin:0 0 14px">Packages</h2>
+  <h2 style="font-weight:800;font-size:20px;letter-spacing:-0.5px;margin:0 0 14px">Plugins</h2>
   <div style="border:1px solid ${C.line};border-radius:14px;overflow:hidden">${rows}</div>
 </div>`;
 }
@@ -1955,7 +1955,7 @@ function acctSettings(s: AppState): string {
     const u = s.user!;
     const bio = s.bioDraft != null ? s.bioDraft : u.bio || "";
     const toggles = [
-        { k: "releases", l: "New releases from packages you use" },
+        { k: "releases", l: "New releases from plugins you use" },
         { k: "security", l: "Security advisories" },
         { k: "digest", l: "Weekly digest" },
     ]
@@ -2005,7 +2005,7 @@ function acctSettings(s: AppState): string {
         <div style="background:#2a1230;border:1px solid #6b3453;border-radius:16px;padding:22px 24px">
           <div style="font-weight:700;font-size:16px;color:#ffb4d2;margin-bottom:14px">Danger zone</div>
           <div style="display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap">
-            <div style="min-width:200px"><div style="font-size:14px;font-weight:600;color:${C.text};margin-bottom:2px">Delete account</div><div style="font-size:12.5px;color:#b78ba3">Permanently removes your account and unpublishes your packages.</div></div>
+            <div style="min-width:200px"><div style="font-size:14px;font-weight:600;color:${C.text};margin-bottom:2px">Delete account</div><div style="font-size:12.5px;color:#b78ba3">Permanently removes your account and unpublishes your plugins.</div></div>
             <button data-act="signout" style="font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;color:#ffb4d2;background:transparent;border:1px solid #6b3453;padding:10px 16px;border-radius:9px;cursor:pointer">Delete account</button>
           </div>
         </div>
