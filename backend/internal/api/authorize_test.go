@@ -75,16 +75,16 @@ func TestSameRepo(t *testing.T) {
 }
 
 func TestSafeReturn(t *testing.T) {
-	a := &App{Cfg: config.Config{FrontendURL: "https://pkg.wago.sh"}}
+	a := &App{Cfg: config.Config{FrontendURL: "https://plugins.wago.sh"}}
 	cases := map[string]string{
-		"https://pkg.wago.sh/JairusSW/wasi": "https://pkg.wago.sh/JairusSW/wasi",
-		"/JairusSW/wasi":                    "https://pkg.wago.sh/JairusSW/wasi",
-		"https://pkg.wago.sh":               "https://pkg.wago.sh",
-		"":                                  "",
-		"https://evil.com/x":                "",                                // other origin
-		"//evil.com":                        "",                                // protocol-relative
-		"/\\evil.com":                       "https://pkg.wago.sh/%5Cevil.com", // backslash → stays on our host
-		"https://pkg.wago.sh.evil.com/x":    "",                                // prefix trickery
+		"https://plugins.wago.sh/JairusSW/wasi": "https://plugins.wago.sh/JairusSW/wasi",
+		"/JairusSW/wasi":                        "https://plugins.wago.sh/JairusSW/wasi",
+		"https://plugins.wago.sh":               "https://plugins.wago.sh",
+		"":                                      "",
+		"https://evil.com/x":                    "",                                    // other origin
+		"//evil.com":                            "",                                    // protocol-relative
+		"/\\evil.com":                           "https://plugins.wago.sh/%5Cevil.com", // backslash → stays on our host
+		"https://plugins.wago.sh.evil.com/x":    "",                                    // prefix trickery
 	}
 	for in, want := range cases {
 		if got := a.safeReturn(in); got != want {

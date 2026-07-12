@@ -1,4 +1,4 @@
-# pkg.wago.sh — the wago plugin registry
+# plugins.wago.sh — the wago plugin registry
 
 Browse and publish plugins for [**wago**](https://github.com/wago-org/wago), the
 pure-Go WebAssembly engine. Host-import bundles, WASI shims, debuggers and
@@ -7,7 +7,7 @@ codegen backends — drop-in Go modules for the runtime.
 Two pieces:
 
 - **Frontend** — a static single-page app (plain HTML + CSS + TypeScript, no
-  framework, compiled by `tsc`). Hosted on **GitHub Pages** at `pkg.wago.sh`.
+  framework, compiled by `tsc`). Hosted on **GitHub Pages** at `plugins.wago.sh`.
 - **Backend** — a small **Go** service ([`backend/`](backend/)) that does GitHub
   OAuth, sessions, and stores stars / reviews / votes. Standard-library only
   (with an eye toward a future TinyGo → wago build).
@@ -41,7 +41,7 @@ src/                  # TypeScript source
 assets/css/tokens.css # base + palette (dark-only "sparkle" theme)
 assets/js/            # compiled output (git-ignored)
 backend/              # the Go service — see backend/README.md
-CNAME                 # pkg.wago.sh
+CNAME                 # plugins.wago.sh
 .github/workflows/
   deploy.yml          # build + publish to GitHub Pages
 ```
@@ -101,10 +101,10 @@ this file (a CI job can regenerate it from the org's repos later).
 
 - **Frontend:** pushing to `main` runs `.github/workflows/deploy.yml` — `npm ci`,
   `npm run build`, publish `dist/` to GitHub Pages. `CNAME` points it at
-  `pkg.wago.sh`; set the matching custom domain in the repo's Pages settings and
+  `plugins.wago.sh`; set the matching custom domain in the repo's Pages settings and
   the DNS record at the registrar.
 - **Backend:** deploy `backend/` anywhere that runs a Go binary (a small VM, Fly,
-  Render, Cloud Run…). Set its `FRONTEND_URL` to `https://pkg.wago.sh` and, in
+  Render, Cloud Run…). Set its `FRONTEND_URL` to `https://plugins.wago.sh` and, in
   the frontend, set `window.WAGO_CONFIG.apiBase` in `index.html` to the backend's
-  URL (default guess is `https://api.pkg.wago.sh`). Register the GitHub OAuth
+  URL (default guess is `https://api.plugins.wago.sh`). Register the GitHub OAuth
   app's callback as `<backend>/auth/github/callback`.

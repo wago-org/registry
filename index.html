@@ -12,7 +12,7 @@
             name="description"
             content="The wago plugin registry — host-import bundles, WASI shims, debuggers and codegen backends. Drop-in Go modules for the wago WebAssembly engine."
         />
-        <link rel="canonical" href="https://pkg.wago.sh/" />
+        <link rel="canonical" href="https://plugins.wago.sh/" />
         <meta property="og:site_name" content="wago plugins" />
         <meta property="og:type" content="website" />
         <meta property="og:title" content="wago plugins — registry" />
@@ -20,15 +20,15 @@
             property="og:description"
             content="Extend your runtime. One import away. Browse and publish plugins for the wago WebAssembly engine."
         />
-        <meta property="og:url" content="https://pkg.wago.sh/" />
-        <meta property="og:image" content="https://pkg.wago.sh/assets/wago-logo.png" />
+        <meta property="og:url" content="https://plugins.wago.sh/" />
+        <meta property="og:image" content="https://plugins.wago.sh/assets/wago-logo.png" />
         <meta name="twitter:card" content="summary" />
         <meta name="twitter:title" content="wago plugins — registry" />
         <meta
             name="twitter:description"
             content="Extend your runtime. One import away. Browse and publish plugins for the wago WebAssembly engine."
         />
-        <meta name="twitter:image" content="https://pkg.wago.sh/assets/wago-logo.png" />
+        <meta name="twitter:image" content="https://plugins.wago.sh/assets/wago-logo.png" />
         <!-- prerender:seo:end -->
         <meta name="theme-color" content="#1a1547" />
 
@@ -46,14 +46,14 @@
 
         <script>
             // Where the Go backend lives.
-            //   • Production (pkg.wago.sh) → the deployed backend at api.pkg.wago.sh.
+            //   • Production (plugins.wago.sh) → the deployed backend at api.plugins.wago.sh.
             //   • Local dev (localhost) → apiBase stays unset so the frontend targets
             //     http://localhost:8787, falling back to demo mode if it's not up.
             window.WAGO_CONFIG = {
                 apiBase:
                     location.hostname === "localhost" || location.hostname === "127.0.0.1"
                         ? undefined
-                        : "https://api.pkg.wago.sh",
+                        : "https://api.plugins.wago.sh",
             };
         </script>
     </head>

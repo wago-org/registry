@@ -12,8 +12,8 @@ import { readFile, writeFile, mkdir } from "node:fs/promises";
 import { dirname, join } from "node:path";
 
 const DIST = "dist";
-const ORIGIN = "https://pkg.wago.sh";
-const API = "https://api.pkg.wago.sh/api/packages";
+const ORIGIN = "https://plugins.wago.sh";
+const API = "https://api.plugins.wago.sh/api/packages";
 const LOGO = `${ORIGIN}/assets/wago-logo.png`;
 
 // Single-segment paths owned by the SPA — never emit an author page that would

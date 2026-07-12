@@ -60,7 +60,7 @@ function render(): void {
 }
 
 const SITE = "wago plugins";
-const SITE_ORIGIN = "https://pkg.wago.sh";
+const SITE_ORIGIN = "https://plugins.wago.sh";
 
 // currentMeta derives the tab title + social/canonical metadata for the current
 // screen. (This keeps the SPA's tab title and in-app OG correct; crawlers get the

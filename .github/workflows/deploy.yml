@@ -1,7 +1,7 @@
 name: Deploy Registry
 
 # Compiles the TypeScript with `tsc`, assembles dist/, and publishes it to
-# GitHub Pages. The custom domain (pkg.wago.sh) is served from the CNAME file.
+# GitHub Pages. The custom domain (plugins.wago.sh) is served from the CNAME file.
 
 on:
   push:

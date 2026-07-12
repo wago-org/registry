@@ -18,7 +18,7 @@ ENV_FILE   ?= dev.env
 # by exporting in your shell. REMOTE is an ssh alias (~/.ssh/config) or user@host.
 # REMOTE_DIR is the service WorkingDirectory, REMOTE_SVC the systemd unit name,
 # and DEPLOY_GOARCH the server CPU (use arm64 for Graviton). Keep values comment-free.
-REMOTE        ?= ec2-user@api.pkg.wago.sh
+REMOTE        ?= ec2-user@api.plugins.wago.sh
 REMOTE_DIR    ?= /home/ec2-user/Wago/registry/backend
 REMOTE_SVC    ?= wago-registry
 DEPLOY_GOARCH ?= amd64

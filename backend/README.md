@@ -1,6 +1,6 @@
 # wago registry backend
 
-HTTP backend for the wago plugins registry (**pkg.wago.sh**).
+HTTP backend for the wago plugins registry (**plugins.wago.sh**).
 
 A **package** is a Go module that ships a `wago-plugin.json` manifest exposing one
 or more **extensions** (host imports, codegen backends, WASI surfaces, …).
@@ -50,7 +50,7 @@ Import direction (no cycles): `api` → {`model`,`store`,`auth`,`httpx`,`config`
 | `GITHUB_CLIENT_ID`     | *(empty)*                  | GitHub OAuth app client id. |
 | `GITHUB_CLIENT_SECRET` | *(empty)*                  | GitHub OAuth app client secret. |
 | `OAUTH_REDIRECT_URL`   | *(empty)*                  | The backend's own callback URL, e.g. `http://localhost:8787/auth/github/callback`. Must match the GitHub app's callback URL exactly. |
-| `FRONTEND_URL`         | `http://localhost:8000`    | Where to redirect the browser after login; also the allowed CORS origin. Prod: `https://pkg.wago.sh`. |
+| `FRONTEND_URL`         | `http://localhost:8000`    | Where to redirect the browser after login; also the allowed CORS origin. Prod: `https://plugins.wago.sh`. |
 | `SESSION_SECRET`       | *(random, ephemeral)*      | HMAC key for signing session cookies. If empty, a random key is generated at startup (sessions won't survive a restart). **Required in production.** |
 | `PACKAGES_FILE`        | `./data/packages.json`     | `wago-registry/v1` seed file. Imported into the store only when the store is empty. |
 | `STORE_FILE`           | `./data/store.json`        | Read/write JSON store for the whole registry. Created if missing. |
@@ -79,7 +79,7 @@ so use **two apps**: one for dev, one for prod.
 1. <https://github.com/settings/developers> → **OAuth Apps** → **New OAuth App**.
 2. **Authorization callback URL** must equal `OAUTH_REDIRECT_URL` exactly:
    - dev app  → `http://localhost:8787/auth/github/callback`
-   - prod app → `https://api.pkg.wago.sh/auth/github/callback`
+   - prod app → `https://api.plugins.wago.sh/auth/github/callback`
 3. Copy the **Client ID** and generate a **Client secret** into
    `GITHUB_CLIENT_ID` / `GITHUB_CLIENT_SECRET` in the matching env file.
 4. The login flow requests the scopes `read:user user:email` (set in code; no app
@@ -87,7 +87,7 @@ so use **two apps**: one for dev, one for prod.
 
 For production, also set `SESSION_SECRET` (`openssl rand -hex 32`),
 `DEV_MODE=false`, and `COOKIE_DOMAIN=.wago.sh` so the session cookie is shared
-between `pkg.wago.sh` (site) and `api.pkg.wago.sh` (API).
+between `plugins.wago.sh` (site) and `api.plugins.wago.sh` (API).
 
 ## Running locally
 

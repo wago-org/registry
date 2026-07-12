@@ -1,5 +1,5 @@
 // Command registry is the HTTP backend for the wago plugins registry
-// (pkg.wago.sh). It uses GitHub as the sole identity provider, issues its own
+// (plugins.wago.sh). It uses GitHub as the sole identity provider, issues its own
 // signed-cookie sessions, and stores the full registry — packages, users, stars,
 // reviews, votes, comments and install history. The default store engine is an
 // embedded Pebble (RocksDB-lineage LSM) database seeded from data/packages.json
