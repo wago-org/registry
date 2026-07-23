@@ -235,14 +235,21 @@ func (a *App) handleLogout(w http.ResponseWriter, r *http.Request) {
 }
 
 // handleMe returns the active identity plus the session's account roster and the
-// active account's organizations, or 401.
+// active account's organizations, or 401. Browser requests carry the complete
+// multi-account session; CLI/CI requests carry a bearer token for one GitHub
+// identity.
 func (a *App) handleMe(w http.ResponseWriter, r *http.Request) {
 	st, ok := a.Sessions.ReadSession(r)
-	if !ok {
+	if ok {
+		a.writeMe(w, r, st)
+		return
+	}
+	u := a.Sessions.CurrentUser(r)
+	if u == nil {
 		httpx.WriteError(w, http.StatusUnauthorized, "unauthorized")
 		return
 	}
-	a.writeMe(w, r, st)
+	a.writeMe(w, r, auth.SessionState{Accounts: []string{u.ID}, Active: u.ID})
 }
 
 // writeMe serializes the effective /me payload from an authoritative session

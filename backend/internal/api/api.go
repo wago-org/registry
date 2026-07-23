@@ -28,7 +28,6 @@ type App struct {
 	Sessions *auth.Sessions
 	GitHub   *auth.GitHub
 	Email    *email.Sender
-	Device   *deviceAuth
 	list     *listCache
 	orgRoles orgRoleCache
 	orgs     orgsCache
@@ -48,8 +47,7 @@ func New(cfg config.Config, st store.Store) *App {
 			Pass: cfg.SMTPPass,
 			From: cfg.SMTPFrom,
 		}),
-		Device: newDeviceAuth(),
-		list:   &listCache{},
+		list: &listCache{},
 	}
 	// Let a session "act as" an org: resolve the effective org identity when the
 	// active user administers it. Kept as a hook so the auth package needn't know
@@ -147,11 +145,6 @@ func (a *App) NewRouter() http.Handler {
 	mux.HandleFunc("GET /auth/cli/login", a.handleCLILogin)
 	mux.HandleFunc("GET /auth/github/callback", a.handleCallback)
 
-	// Device authorization (RFC 8628) — CLI login for headless/remote machines.
-	mux.HandleFunc("GET /device", a.handleDevicePage)
-	mux.HandleFunc("POST /api/device/code", a.handleDeviceCode)
-	mux.HandleFunc("POST /api/device/token", a.handleDeviceToken)
-	mux.HandleFunc("POST /api/device/approve", a.handleDeviceApprove)
 	mux.HandleFunc("POST /api/logout", a.handleLogout)
 	mux.HandleFunc("POST /api/session/switch", a.handleSwitchAccount)
 	mux.HandleFunc("GET /api/me", a.handleMe)

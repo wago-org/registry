@@ -129,6 +129,8 @@ registry stars), `starred` (only when authenticated), `installsWeek`,
 | Method            | Path                              | Auth | Description |
 |-------------------|-----------------------------------|------|-------------|
 | `GET`             | `/api/health`                     | no   | `{"ok":true,"packages":N}` |
+| `GET`             | `/api/auth/github/client`         | no   | GitHub OAuth client id and scopes for CLI device authorization. |
+| `POST`            | `/api/auth/github/exchange`       | no   | Verify a GitHub access token and exchange it for a registry API token. |
 | `GET`             | `/auth/github/login`              | no   | 302 → GitHub authorize (sets signed `wago_oauth_state`). |
 | `GET`             | `/auth/github/callback`           | no   | Verify state, exchange code, upsert user, set session, 302 → frontend. |
 | `POST`            | `/api/logout`                     | no   | Clear the session cookie. |
@@ -156,8 +158,10 @@ registry stars), `starred` (only when authenticated), `installsWeek`,
 
 **Auth column:** `yes` = a valid session cookie **or** `Authorization: Bearer <token>`;
 `own` = authenticated **and** the package's owner. API tokens (minted at
-`/api/tokens` or via the CLI loopback login) let the `wago` CLI and CI publish
-without a browser session.
+`/api/tokens`, the CLI loopback login, or GitHub device authorization) let the
+`wago` CLI and CI publish without a browser session. All interactive identities
+are verified by GitHub; the backend does not run a separate device-identity
+system.
 
 > **Note on module names in the URL.** `{name}` matches a single path segment, so
 > a full module path with slashes cannot appear in the URL — the frontend uses the
