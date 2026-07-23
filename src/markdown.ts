@@ -10,6 +10,7 @@
 // module — both resolve dynamic imports relative to the importing module's URL.
 
 import { esc } from "./util.js";
+import { highlightWat, supportsWat } from "./wat.js";
 
 type MarkedFn = {
     (src: string, opts?: { breaks?: boolean }): string;
@@ -56,14 +57,18 @@ const RICH_ATTR = [...ALLOWED_ATTR, "src", "alt", "width", "height", "loading", 
 // way GitHub does: only blocks with an explicit, recognised language. The result
 // is `<span class="token …">` spans that the theme in tokens.css colours.
 function highlightBlocks(rawHtml: string): string {
-    if (!highlighter || typeof DOMParser === "undefined") return rawHtml;
+    if (typeof DOMParser === "undefined") return rawHtml;
     try {
         const doc = new DOMParser().parseFromString(`<body>${rawHtml}</body>`, "text/html");
         doc.querySelectorAll("pre > code").forEach((code) => {
             const m = (code.getAttribute("class") || "").match(/language-([\w+#-]+)/i);
             const lang = m && m[1] ? m[1].toLowerCase() : "";
-            if (!lang || !highlighter!.supports(lang)) return; // unlabeled / unknown → leave plain
-            const out = highlighter!.highlight(code.textContent || "", lang);
+            if (!lang) return;
+            const out = supportsWat(lang)
+                ? highlightWat(code.textContent || "")
+                : highlighter?.supports(lang)
+                    ? highlighter.highlight(code.textContent || "", lang)
+                    : null;
             if (out != null) code.innerHTML = out;
         });
         return doc.body.innerHTML;

@@ -113,11 +113,15 @@ build-api: ## Compile the backend to backend/registry
 ## ── checks ───────────────────────────────────────────────────────────────────
 
 .PHONY: check
-check: typecheck vet ## Typecheck the frontend and vet the backend
+check: typecheck test-wat vet ## Typecheck and test the frontend, then vet the backend
 
 .PHONY: typecheck
 typecheck: ## tsc --noEmit
 	npm run typecheck
+
+.PHONY: test-wat
+test-wat: ## Compile and verify WebAssembly Text syntax highlighting
+	npm run test:wat
 
 .PHONY: vet
 vet: ## go vet + gofmt check
